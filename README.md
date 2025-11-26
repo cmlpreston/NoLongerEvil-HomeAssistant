@@ -39,3 +39,57 @@ git config core.sparseCheckout true
 git sparse-checkout set server
 cd ../..
 ```
+
+## Configuration
+
+After installing the add-on, you can configure it through the Home Assistant UI:
+
+### Options
+
+- **`api_origin`** (REQUIRED): The full URL (including port) where Nest devices can reach this add-on
+
+  - Must include the protocol, hostname/IP, and port
+  - Examples:
+    - `http://192.168.1.100:9543`
+    - `http://homeassistant.local:9543`
+    - `http://192.168.1.100:8054` (if you changed the port in Network settings)
+  - **Important**: This must match the host port configured in the Network tab
+
+- **`entry_key_ttl_seconds`** (default: `3600`): How long entry keys remain valid (in seconds)
+
+  - Entry keys are used during device initialization
+  - Default is 1 hour (3600 seconds)
+
+- **`debug_logging`** (default: `false`): Enable verbose request/response logging
+  - Useful for troubleshooting device communication issues
+  - Creates detailed logs of all API requests
+
+### Ports
+
+The add-on uses port **9543** inside the container for Nest device communication. This port is mapped to the host and **can be changed** in the Network settings if needed:
+
+- Container port **9543** → Host port **9543** (default, configurable via Network UI)
+- Container port **8081** → Host port **8081** (Control API and web interface)
+
+Users can change the host port in the Home Assistant add-on Network configuration if port 9543 conflicts with another service.
+
+### Example Configuration
+
+```yaml
+api_origin: "http://192.168.1.100:9543" # REQUIRED: Your HA IP + port
+entry_key_ttl_seconds: 3600 # 1 hour
+debug_logging: false # Disable debug logs
+```
+
+### Network
+
+This add-on uses standard Docker port mapping. By default:
+
+- Container port 9543 → Host port 9543 (Nest devices)
+- Container port 8081 → Host port 8081 (Web interface)
+
+You can change the host ports in the add-on's Network configuration tab if needed.
+
+Your Nest devices should be configured to connect to: `http://<your-home-assistant-ip>:<configured-port>`
+
+For example, if you changed the host port to 9543, Nest devices would connect to: `http://192.168.1.100:9543`
