@@ -16,6 +16,17 @@ INGRESS_PORT=8082
 if bashio::config.has_value 'api_origin'; then
     API_ORIGIN=$(bashio::config 'api_origin')
     bashio::log.info "Using configured API origin: ${API_ORIGIN}"
+
+    # Validate api_origin format: must be a valid URL with protocol and port
+    if ! echo "${API_ORIGIN}" | grep -qE '^https?://[^/:]+:[0-9]+$'; then
+        bashio::log.fatal "api_origin must be a valid URL with protocol, hostname, and port"
+        bashio::log.fatal "Current value: ${API_ORIGIN}"
+        bashio::log.fatal "Expected format: http://<hostname-or-ip>:<port>"
+        bashio::log.fatal "Examples:"
+        bashio::log.fatal "  http://192.168.1.100:9543"
+        bashio::log.fatal "  http://homeassistant.local:9543"
+        exit 1
+    fi
 else
     bashio::log.fatal "api_origin is required! Please configure it in the add-on settings."
     bashio::log.fatal "Example: http://192.168.1.100:9543"
@@ -86,7 +97,22 @@ bashio::log.info "API server started (PID: ${SERVER_PID})"
 
 # Wait for server to initialize database
 bashio::log.info "Waiting for database initialization..."
-sleep 3
+MAX_WAIT=30
+WAIT_COUNT=0
+while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+  if [ -f /data/database.sqlite ]; then
+    bashio::log.info "Database ready"
+    break
+  fi
+  sleep 1
+  WAIT_COUNT=$((WAIT_COUNT + 1))
+done
+
+if [ $WAIT_COUNT -eq $MAX_WAIT ]; then
+  bashio::log.fatal "Database initialization timeout after ${MAX_WAIT} seconds"
+  kill $SERVER_PID 2>/dev/null
+  exit 1
+fi
 
 # Start the frontend (Ingress UI + MQTT initialization)
 bashio::log.info "Starting frontend web UI..."

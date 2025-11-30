@@ -66,10 +66,11 @@ After installing the add-on, you can configure it through the Home Assistant UI:
 
 ### Ports
 
-The add-on uses port **9543** inside the container for Nest device communication. This port is mapped to the host and **can be changed** in the Network settings if needed:
+The add-on listens on port **8000** inside the container for Nest device communication. This is mapped to host port **9543** by default (configurable in the Network settings):
 
-- Container port **9543** → Host port **9543** (default, configurable via Network UI)
-- Container port **8081** → Host port **8081** (Control API and web interface)
+- Container port **8000** → Host port **9543** (Nest devices, configurable via Network UI)
+- Container port **8081** → Internal only (Control API)
+- Container port **8082** → Ingress only (Web interface)
 
 Users can change the host port in the Home Assistant add-on Network configuration if port 9543 conflicts with another service.
 
@@ -79,17 +80,3 @@ Users can change the host port in the Home Assistant add-on Network configuratio
 api_origin: "http://192.168.1.100:9543" # REQUIRED: Your HA IP + port
 entry_key_ttl_seconds: 3600 # 1 hour
 debug_logging: false # Disable debug logs
-```
-
-### Network
-
-This add-on uses standard Docker port mapping. By default:
-
-- Container port 9543 → Host port 9543 (Nest devices)
-- Container port 8081 → Host port 8081 (Web interface)
-
-You can change the host ports in the add-on's Network configuration tab if needed.
-
-Your Nest devices should be configured to connect to: `http://<your-home-assistant-ip>:<configured-port>`
-
-For example, if you changed the host port to 9543, Nest devices would connect to: `http://192.168.1.100:9543`
