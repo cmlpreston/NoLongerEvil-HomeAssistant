@@ -1,4 +1,3 @@
-[submodule "nolongerevil/vendor/nolongerevil"]
-	path = nolongerevil/vendor/nolongerevil
-	url = https://github.com/codykociemba/NoLongerEvil-Thermostat.git
-	branch = open-source-prototype
+[submodule "nolongerevil/vendor/NoLongerEvil-Thermostat"]
+    path = nolongerevil/vendor/NoLongerEvil-Thermostat
+    url = https://github.com/cmlpreston/NoLongerEvil-Thermostat.git
